@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Landing page · Boné Stay Alive (Lipe Alive)
 
-## Getting Started
+Next.js 14 (App Router) + TypeScript + Tailwind + framer-motion. Mobile-first.
 
-First, run the development server:
+## Rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuração
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Tudo que muda fica em `src/lib/config.ts` (nome, preço, parcelado, texto do botão, mídias, `hero.mode`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`hero.mode` é `"3d"` por padrão e carrega `public/media/bone/bone.glb`. Sem o arquivo, o hero mostra a imagem estática.
+`"video"` volta para o `<video>` 360°.
 
-## Learn More
+### Boné 3D (bone.glb)
 
-To learn more about Next.js, take a look at the following resources:
+O boné é gerado por script, não em runtime:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx tsx scripts/export-cap.ts   # → public/media/bone/bone.glb (~600 kB)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+O script monta o 5 panel procedural em three.js, gera as texturas com sharp (ripstop em normal map, bordado
+"Stay Alive." com relevo em Inter Tight, aba com pesponto) em WebP, e grava o glTF quantizado + meshopt.
+Para trocar o modelo por um GLB real, basta substituir o arquivo (nós nomeados `crown`, `brim`, `decal`...;
+o `decal` recebe polygonOffset/transparência no load).
 
-## Deploy on Vercel
+No site: `CapModel` carrega o GLB (GLTFLoader + meshopt), pré-compila um material por frame com `gl.compile`
+e só então libera a entrada do boné. Os auxiliares da cena (ambiente, pós-processamento, partículas, sombra)
+montam um por frame para espalhar a compilação de shaders.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Hero 3D: `src/components/hero3d/Scene.tsx` (luzes, câmera, scroll story, callouts). O roteiro do scroll
+(rotação, zoom, saída) são os keyframes no topo desse arquivo; os textos e âncoras dos callouts ficam em `src/lib/heroStore.ts`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Variáveis em `.env.local`:
+
+```
+NEXT_PUBLIC_CHECKOUT_URL=#      # "#" = botão visível, sem navegar
+NEXT_PUBLIC_META_PIXEL_ID=      # vazio = Pixel desligado
+```
+
+## Mídias
+
+| Pasta | Arquivo | Formato |
+|---|---|---|
+| `public/media/bone/` | `bone-360.webm` | vídeo 360° em loop, 3:4 ou 1:1, VP9, sem áudio |
+| `public/media/bone/` | `bone-360.mp4` | mesmo vídeo em H.264 (fallback Safari/iOS) |
+| `public/media/bone/` | `bone-poster.jpg` | primeiro frame do 360°, mesma proporção |
+| `public/media/bone/` | `bone.glb` | modelo 3D (só para `hero.mode = "3d"`) |
+| `public/media/video/` | `lipe.mp4` | vídeo vertical 9:16 do Lipe, H.264 + AAC |
+| `public/media/video/` | `lipe-poster.jpg` | poster 9:16 do vídeo |
+
+Enquanto os arquivos não existirem, a página usa os recortes do storyboard em `public/media/img/`.
+
+## Vídeo da dobra 2
+
+Sem `lipe.mp4`: card com a imagem do bordado e "Vídeo em breve". Com o arquivo: ao entrar ~60% na tela,
+contagem 3-2-1 e o vídeo começa mudo (botão "Ativar som"). Ao terminar, volta para a imagem com "Repetir vídeo"
+(repete com som). Sai da tela: pausa; volta: continua.
+
+## Seção "Sobre o Lipe"
+
+Dados em `config.lipe` (mesmos textos, links e foto da LP Alive Finance). Imagens em `public/media/img/lipe/`.
+
+## Tracking (Meta Pixel)
+
+- `PageView` e `ViewContent` (value = preço) no carregamento.
+- `CliqueCheckout` com `posicao` = `hero` | `dobra2` | `sticky` (barra fixa do mobile).
+- `VSL` com `pct` = 25 | 50 | 75 | 95 no vídeo do Lipe, e `VideoRepetir` no botão de repetir.
+- O botão repassa `utm_*`, `fbclid` e `src` da URL da página para o checkout.

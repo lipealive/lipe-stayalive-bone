@@ -3,25 +3,121 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #0a0a0a;
+  --ink-2: #111111;
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #fff;
+  color: #0a0a0a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  .label {
+    @apply text-[11px] font-medium uppercase tracking-[0.28em] text-white/55;
+  }
+  .spotlight {
+    /* luz cobrindo o hero inteiro: centro um pouco mais claro, bordas ainda vivas */
+    background:
+      radial-gradient(
+        ellipse 85% 75% at 50% 42%,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(255, 255, 255, 0.075) 35%,
+        rgba(255, 255, 255, 0.035) 65%,
+        rgba(255, 255, 255, 0.015) 100%
+      ),
+      linear-gradient(180deg, #171717 0%, #111111 55%, #0c0c0c 100%);
+  }
+  .lightband {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 12%,
+      rgba(255, 255, 255, 0.09) 50%,
+      rgba(255, 255, 255, 0.05) 88%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    mask-image: linear-gradient(180deg, transparent, black 30%, black 70%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, transparent, black 30%, black 70%, transparent);
+    filter: blur(14px);
+  }
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+  }
+}
+
+/* Título gigante em outline atrás do boné */
+.outline-text {
+  font-size: clamp(64px, 17.5vw, 300px);
+  letter-spacing: -0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.16);
+}
+@media (min-width: 768px) {
+  .outline-text {
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.14);
+  }
+}
+
+/* Fallback do hero: imagem fundida no fundo, sem bordas */
+.hero-fallback-mask {
+  mask-image: radial-gradient(ellipse 48% 46% at 50% 50%, black 35%, transparent 74%);
+  -webkit-mask-image: radial-gradient(ellipse 48% 46% at 50% 50%, black 35%, transparent 74%);
+}
+
+/* Sticker girando devagar (seção Sobre o Lipe) */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 22s linear infinite;
+}
+.font-script {
+  font-family: var(--font-script), "Comic Sans MS", cursive;
+}
+
+/* Brilho passando no botão a cada ~4s */
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(10, 10, 10, 0.12) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: btn-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes btn-shine {
+  0% { transform: translateX(-120%); }
+  22% { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine::after { animation: none; }
 }

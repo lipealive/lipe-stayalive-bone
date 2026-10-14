@@ -1,16 +1,27 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        ink: { DEFAULT: "#0A0A0A", 2: "#111111", 3: "#171717" },
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      letterSpacing: {
+        widest2: "0.28em",
+      },
+      keyframes: {
+        scrollhint: {
+          "0%": { transform: "translateY(0)", opacity: "0" },
+          "30%": { opacity: "1" },
+          "100%": { transform: "translateY(14px)", opacity: "0" },
+        },
+      },
+      animation: {
+        scrollhint: "scrollhint 1.8s ease-in-out infinite",
       },
     },
   },
