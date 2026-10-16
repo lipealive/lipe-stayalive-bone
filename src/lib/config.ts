@@ -51,6 +51,7 @@ export const config = {
       placeholder: "/media/img/placeholder-bone.jpg",
     },
     lipe: {
+      webm: "/media/video/lipe.webm",
       mp4: "/media/video/lipe.mp4",
       poster: "/media/video/lipe-poster.jpg",
       placeholder: "/media/img/placeholder-lipe.jpg",
